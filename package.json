@@ -1,0 +1,35 @@
+{
+  "name": "insurance-ad-compliance",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "env:check": "tsx --env-file-if-exists=.env.local scripts/check-env.ts",
+    "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed-super-admin.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.45.4",
+    "next": "^15.3.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^20.14.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.3.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0"
+  }
+}
