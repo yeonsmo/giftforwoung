@@ -43,7 +43,8 @@ export interface DebateResult {
 }
 
 export async function runDebateAnalysis(input: {
-  media: InlineMedia;
+  media?: InlineMedia;
+  contentText?: string;
   note?: string;
 }): Promise<DebateResult> {
   const keys = await listActiveKeys();
@@ -56,7 +57,7 @@ export async function runDebateAnalysis(input: {
   // Stage 1: initial judgment by the lead model.
   const initialText = await callModel(lead.provider, lead.key, {
     systemInstruction: JUDGE_SYSTEM,
-    prompt: buildJudgePrompt(legislation, input.note),
+    prompt: buildJudgePrompt(legislation, input.note, input.contentText),
     media: input.media,
   });
   const initialVerdict = parseVerdict(initialText);
@@ -66,7 +67,7 @@ export async function runDebateAnalysis(input: {
   for (const k of keys.slice(1)) {
     const critiqueText = await callModel(k.provider, k.key, {
       systemInstruction: CRITIQUE_SYSTEM,
-      prompt: buildCritiquePrompt(legislation, initialVerdict, input.note),
+      prompt: buildCritiquePrompt(legislation, initialVerdict, input.note, input.contentText),
       media: input.media,
     });
     const parsed = parseCritique(critiqueText);
@@ -90,6 +91,7 @@ export async function runDebateAnalysis(input: {
         critique: c.critique,
       })),
       input.note,
+      input.contentText,
     ),
     media: input.media,
   });

@@ -34,11 +34,15 @@ export interface SingleModelResult {
 export type AnalysisResult = SingleModelResult | DebateResult;
 
 export interface AnalysisInput {
-  media: InlineMedia;
+  media?: InlineMedia;
+  contentText?: string;
   note?: string;
 }
 
 export async function runAnalysis(input: AnalysisInput): Promise<AnalysisResult> {
+  if (!input.media && !input.contentText) {
+    throw new Error("분석할 미디어 또는 텍스트 콘텐츠가 필요합니다.");
+  }
   const count = await activeKeyCount();
   if (count === 0) {
     throw new Error(
@@ -65,7 +69,7 @@ export async function runSingleModelAnalysis(
 
   const rawText = await callModel(key.provider, key.key, {
     systemInstruction: JUDGE_SYSTEM,
-    prompt: buildJudgePrompt(legislation, input.note),
+    prompt: buildJudgePrompt(legislation, input.note, input.contentText),
     media: input.media,
   });
 

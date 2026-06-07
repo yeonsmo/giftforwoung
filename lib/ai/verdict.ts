@@ -72,14 +72,27 @@ function extractJson(text: string): Record<string, unknown> {
   return JSON.parse(text.slice(start, end + 1)) as Record<string, unknown>;
 }
 
-export function buildJudgePrompt(legislation: string, note?: string): string {
+function contentSection(contentText?: string): string {
+  return contentText ? `검토 대상 콘텐츠(텍스트):\n${contentText}` : "";
+}
+
+const TARGET_NOTE =
+  "판별 대상은 첨부된 미디어 또는 위에 제시된 텍스트 콘텐츠입니다.";
+
+export function buildJudgePrompt(
+  legislation: string,
+  note?: string,
+  contentText?: string,
+): string {
   return [
     "다음은 대조에 사용할 수집된 법령 데이터입니다:",
     legislation,
     "",
+    contentSection(contentText),
+    "",
     note ? `추가 참고 사항: ${note}` : "",
     "",
-    "위 법령에 근거하여 첨부된 보험광고 콘텐츠의 위반 여부를 판별하고 지정된 JSON으로만 응답하십시오.",
+    `위 법령에 근거하여 보험광고 콘텐츠의 위반 여부를 판별하고 지정된 JSON으로만 응답하십시오. ${TARGET_NOTE}`,
   ].join("\n");
 }
 
@@ -87,10 +100,13 @@ export function buildCritiquePrompt(
   legislation: string,
   initial: AnalysisVerdict,
   note?: string,
+  contentText?: string,
 ): string {
   return [
     "다음은 대조에 사용할 수집된 법령 데이터입니다:",
     legislation,
+    "",
+    contentSection(contentText),
     "",
     "다음은 다른 모델의 1차 판별 결과입니다:",
     JSON.stringify(initial),
@@ -106,10 +122,13 @@ export function buildFinalPrompt(
   initial: AnalysisVerdict,
   critiques: { provider: string; agree: boolean; critique: string }[],
   note?: string,
+  contentText?: string,
 ): string {
   return [
     "다음은 대조에 사용할 수집된 법령 데이터입니다:",
     legislation,
+    "",
+    contentSection(contentText),
     "",
     "다음은 1차 판별 결과입니다:",
     JSON.stringify(initial),
@@ -119,6 +138,6 @@ export function buildFinalPrompt(
     "",
     note ? `추가 참고 사항: ${note}` : "",
     "",
-    "비평을 반영하여 최종 판별을 다시 수행하고 지정된 JSON으로만 응답하십시오.",
+    `비평을 반영하여 최종 판별을 다시 수행하고 지정된 JSON으로만 응답하십시오. ${TARGET_NOTE}`,
   ].join("\n");
 }
