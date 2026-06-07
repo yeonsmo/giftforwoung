@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
 import { isAdminOrAbove } from "@/lib/auth/roles";
+import { LegislationUpdatePopup } from "@/components/legislation/LegislationUpdatePopup";
 
 const NAV = [
   { href: "/dashboard", label: "대시보드" },
@@ -41,6 +42,7 @@ export default async function DashboardLayout({
         ) : null}
       </aside>
       <section>{children}</section>
+      {isAdminOrAbove(user.role) ? <LegislationUpdatePopup /> : null}
     </div>
   );
 }
