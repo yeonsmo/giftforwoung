@@ -11,6 +11,7 @@ const NAV = [
   { href: "/workflow", label: "재검증" },
   { href: "/settings/legislation", label: "법령 설정" },
   { href: "/settings/ai-keys", label: "AI 키" },
+  { href: "/settings/generation", label: "생성 설정" },
 ];
 
 export default async function DashboardLayout({

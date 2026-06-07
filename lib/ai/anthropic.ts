@@ -17,6 +17,8 @@ export interface AnthropicCallInput {
   systemInstruction: string;
   prompt: string;
   media?: InlineMedia;
+  /** Accepted for interface parity; Claude output is shaped by the prompt. */
+  json?: boolean;
 }
 
 interface AnthropicResponse {

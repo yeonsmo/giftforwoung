@@ -14,6 +14,8 @@ export interface OpenAiCallInput {
   systemInstruction: string;
   prompt: string;
   media?: InlineMedia;
+  /** When false, requests free text instead of JSON output. Default true. */
+  json?: boolean;
 }
 
 interface OpenAiResponse {
@@ -37,15 +39,17 @@ export async function openaiGenerate(input: OpenAiCallInput): Promise<string> {
     });
   }
 
-  const body = {
+  const body: Record<string, unknown> = {
     model,
     messages: [
       { role: "system", content: input.systemInstruction },
       { role: "user", content: userContent },
     ],
-    response_format: { type: "json_object" },
     max_tokens: serverEnv().AI_MAX_OUTPUT_TOKENS,
   };
+  if (input.json !== false) {
+    body.response_format = { type: "json_object" };
+  }
 
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",

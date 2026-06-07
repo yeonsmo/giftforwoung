@@ -20,6 +20,8 @@ export interface GeminiCallInput {
   systemInstruction: string;
   prompt: string;
   media?: InlineMedia;
+  /** When false, requests free text instead of JSON output. Default true. */
+  json?: boolean;
 }
 
 interface GeminiResponse {
@@ -39,10 +41,15 @@ export async function geminiGenerate(input: GeminiCallInput): Promise<string> {
     });
   }
 
+  const generationConfig: Record<string, unknown> = { temperature: 0.2 };
+  if (input.json !== false) {
+    generationConfig.response_mime_type = "application/json";
+  }
+
   const body = {
     system_instruction: { parts: [{ text: input.systemInstruction }] },
     contents: [{ role: "user", parts }],
-    generationConfig: { temperature: 0.2, response_mime_type: "application/json" },
+    generationConfig,
   };
 
   const res = await fetch(url, {

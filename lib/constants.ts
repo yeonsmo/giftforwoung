@@ -41,6 +41,27 @@ export type AiProviderId = (typeof AI_PROVIDERS)[number]["id"];
 
 export const DEFAULT_AI_PROVIDER: AiProviderId = "gemini";
 
+/** Key categories in ai_provider_keys (Step 6 separates LLM from image/video). */
+export const KEY_CATEGORIES = {
+  LLM: "llm",
+  IMAGE: "image",
+  VIDEO: "video",
+} as const;
+
+/** Image generation providers (spec 5-2-1). */
+export const IMAGE_PROVIDERS = [
+  { id: "openai_dalle", label: "OpenAI DALL-E" },
+  { id: "google_imagen", label: "Google Imagen" },
+  { id: "stability", label: "Stability AI" },
+] as const;
+
+/** Video generation providers (spec 5-2-3). */
+export const VIDEO_PROVIDERS = [
+  { id: "runway", label: "Runway" },
+  { id: "pika", label: "Pika" },
+  { id: "google_veo", label: "Google Veo" },
+] as const;
+
 /** Generation output types (Step 6). */
 export const GENERATION_OUTPUT_TYPES = {
   IMAGE: "image",

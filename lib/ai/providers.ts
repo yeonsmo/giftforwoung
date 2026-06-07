@@ -13,6 +13,8 @@ export interface ModelCallInput {
   systemInstruction: string;
   prompt: string;
   media?: InlineMedia;
+  /** When false, requests free text instead of JSON output. Default true. */
+  json?: boolean;
 }
 
 /** Gemini handles image and video; OpenAI/Anthropic handle images only. */
@@ -38,7 +40,13 @@ export async function callModel(
       ? `${input.prompt}\n\n참고: 이 모델은 첨부된 미디어 형식(영상 등)을 직접 분석할 수 없으므로, 다른 모델의 판별과 법령 근거를 토대로 검토하십시오.`
       : input.prompt;
 
-  const call = { apiKey, systemInstruction: input.systemInstruction, prompt, media };
+  const call = {
+    apiKey,
+    systemInstruction: input.systemInstruction,
+    prompt,
+    media,
+    json: input.json,
+  };
 
   switch (provider) {
     case "gemini":
