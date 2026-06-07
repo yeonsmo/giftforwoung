@@ -4,11 +4,22 @@ import { publicEnv } from "@/lib/env";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
+/** Public paths that never require authentication. */
+const PUBLIC_PATHS = ["/", "/login"];
+
+function isPublicPath(pathname: string): boolean {
+  if (PUBLIC_PATHS.includes(pathname)) return true;
+  // Auth endpoints and the health check stay public.
+  if (pathname.startsWith("/api/health")) return true;
+  if (pathname.startsWith("/api/auth")) return true;
+  return false;
+}
+
 /**
- * Refreshes the Supabase auth session on every request and keeps cookies in
- * sync. In Step 1 this is a pass-through that only refreshes the session.
- * Step 2 adds route-guard logic (redirect unauthenticated users to /login and
- * role-gate protected routes).
+ * Refreshes the Supabase auth session and guards protected routes. Unauthenticated
+ * users hitting a protected page are redirected to /login. API routes are not
+ * redirected here; they enforce auth themselves and return 401/403 JSON.
+ * Role-level gating (admin, super admin) is enforced in layouts/pages and APIs.
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -34,10 +45,24 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Refresh the session. Do not run privileged logic here.
-  await supabase.auth.getUser();
+  let user = null;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch {
+    // Auth backend unreachable; treat as unauthenticated. Protected routes
+    // then redirect to /login and public routes still render.
+    user = null;
+  }
 
-  // Step 2: add redirect/role-gate logic here based on the user and path.
+  const pathname = request.nextUrl.pathname;
+  const isApi = pathname.startsWith("/api");
+
+  if (!user && !isApi && !isPublicPath(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }
