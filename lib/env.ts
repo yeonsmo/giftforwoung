@@ -58,6 +58,9 @@ const serverSchema = z.object({
   INSTAGRAM_APP_ID: z.string().optional(),
   INSTAGRAM_APP_SECRET: z.string().optional(),
   INSTAGRAM_ACCESS_TOKEN: z.string().optional(),
+  INSTAGRAM_BUSINESS_ACCOUNT_ID: z.string().optional(),
+  INSTAGRAM_GRAPH_BASE_URL: z.string().url().default("https://graph.facebook.com"),
+  INSTAGRAM_GRAPH_VERSION: z.string().default("v21.0"),
 });
 
 export type PublicEnv = z.infer<typeof publicSchema>;
