@@ -33,6 +33,12 @@ const serverSchema = z.object({
     .string()
     .url()
     .default("https://generativelanguage.googleapis.com/v1beta"),
+  AI_OPENAI_MODEL: z.string().default("gpt-4o"),
+  AI_OPENAI_BASE_URL: z.string().url().default("https://api.openai.com/v1"),
+  AI_ANTHROPIC_MODEL: z.string().default("claude-opus-4-8"),
+  AI_ANTHROPIC_BASE_URL: z.string().url().default("https://api.anthropic.com/v1"),
+  AI_ANTHROPIC_VERSION: z.string().default("2023-06-01"),
+  AI_MAX_OUTPUT_TOKENS: z.coerce.number().int().positive().default(4096),
   GENERATION_TREND_API_BASE_URL: z.string().url().optional().or(z.literal("")),
   GENERATION_TREND_API_KEY: z.string().optional(),
   STORAGE_PROVIDER: z.enum(["supabase", "vercel_blob"]).default("supabase"),

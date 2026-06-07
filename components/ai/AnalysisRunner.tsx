@@ -25,7 +25,13 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   return data;
 }
 
-export function AnalysisRunner() {
+export function AnalysisRunner({
+  heading = "법령 위반 분석",
+  description = "사진 또는 영상을 업로드하면 Vision LLM이 수집된 법령 데이터와 대조하여 위반 여부를 판별합니다. 영상 등 대용량 파일은 Cloud Storage에 직접 업로드됩니다.",
+}: {
+  heading?: string;
+  description?: string;
+} = {}) {
   const [file, setFile] = useState<File | null>(null);
   const [note, setNote] = useState("");
   const [status, setStatus] = useState<string | null>(null);
@@ -75,10 +81,8 @@ export function AnalysisRunner() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">법령 위반 분석</h1>
-      <p className="text-xs text-[var(--color-muted)]">
-        사진 또는 영상을 업로드하면 Vision LLM이 수집된 법령 데이터와 대조하여 위반 여부를 판별합니다. 영상 등 대용량 파일은 Cloud Storage에 직접 업로드됩니다.
-      </p>
+      <h1 className="text-xl font-semibold">{heading}</h1>
+      <p className="text-xs text-[var(--color-muted)]">{description}</p>
 
       <div className="space-y-3">
         <input

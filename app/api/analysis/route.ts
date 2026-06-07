@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { requireApiRole, jsonError, AuthError } from "@/lib/auth/api";
 import { ROLES } from "@/lib/constants";
 import { downloadBytes } from "@/lib/storage";
-import { runSingleModelAnalysis } from "@/lib/ai/analysis";
+import { runAnalysis } from "@/lib/ai/analysis";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     const bytes = await downloadBytes(bucket, path);
-    const result = await runSingleModelAnalysis({
+    const result = await runAnalysis({
       media: { base64: bytes.toString("base64"), mimeType },
       note: body.note,
     });
