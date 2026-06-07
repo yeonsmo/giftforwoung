@@ -19,7 +19,7 @@ Supabase(PostgreSQL + Auth)를 사용합니다.
 1. Next.js + Vercel + Supabase 인프라 및 환경변수 구조  (완료)
 2. 인증 + 3등급 권한 + 관리자 페이지 + 최고권한자 보호(서버 강제)  (완료)
 3. 법제처 API 연동, 법령 수집(7범주), 91일 업데이트 카운터  (완료)
-4. AI API 키 관리(Gemini 기본, 다중, 암호화) + 단일 모델 분석 엔진
+4. AI API 키 관리(Gemini 기본, 다중, 암호화) + 단일 모델 분석 엔진  (완료)
 5. 다중 모델 토론 오케스트레이션(Cross-Examination)
 6. 생성 모델(출력 유형 선택, 키 매핑, 범용 트렌드 API)
 7. 순환 워크플로우(생성 후 재검증)
@@ -91,6 +91,11 @@ npm run build
 준비되면 Supabase CLI(`supabase db push`) 또는 SQL 편집기로 적용합니다.
 
 - `0001_init.sql`: `profiles` 테이블, `app_role` enum, 신규 사용자 트리거, RLS.
+- `0002_system_settings.sql`: `system_settings`(최고권한자 잠금), 인덱스.
+- `0003_legislation.sql`: `legislation`, `legislation_meta`(91일 카운터), `app_secrets`(암호화 비밀).
+- `0004_ai_and_analyses.sql`: `ai_provider_keys`(암호화 AI 키), `analyses`(분석 기록).
+
+파일 업로드는 Supabase Storage 버킷(`SUPABASE_STORAGE_BUCKET`, 기본 `uploads`)을 사용합니다. Supabase 대시보드 또는 CLI에서 해당 버킷을 생성하십시오. 영상 등 대용량 파일은 서명된 업로드 URL로 브라우저에서 직접 업로드되어 서버리스 4.5MB 제한을 우회합니다.
 
 최고권한자 시드(자격증명 준비 후):
 

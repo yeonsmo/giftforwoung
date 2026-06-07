@@ -27,6 +27,20 @@ export const LEGISLATION_CATEGORIES = [
 
 export type LegislationCategory = (typeof LEGISLATION_CATEGORIES)[number];
 
+/**
+ * Supported AI providers for analysis/generation key management (Step 4+).
+ * Gemini is the default Vision LLM (spec 4-1-3).
+ */
+export const AI_PROVIDERS = [
+  { id: "gemini", label: "Gemini (Vision LLM)" },
+  { id: "openai", label: "OpenAI GPT" },
+  { id: "anthropic", label: "Anthropic Claude" },
+] as const;
+
+export type AiProviderId = (typeof AI_PROVIDERS)[number]["id"];
+
+export const DEFAULT_AI_PROVIDER: AiProviderId = "gemini";
+
 /** Generation output types (Step 6). */
 export const GENERATION_OUTPUT_TYPES = {
   IMAGE: "image",

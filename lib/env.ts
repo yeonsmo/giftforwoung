@@ -28,6 +28,11 @@ const serverSchema = z.object({
   LEGISLATION_UPDATE_INTERVAL_DAYS: z.coerce.number().int().positive().default(91),
   AI_DEFAULT_PROVIDER: z.string().default("gemini"),
   AI_DEBATE_MIN_KEYS: z.coerce.number().int().positive().default(2),
+  AI_GEMINI_MODEL: z.string().default("gemini-2.0-flash"),
+  AI_GEMINI_BASE_URL: z
+    .string()
+    .url()
+    .default("https://generativelanguage.googleapis.com/v1beta"),
   GENERATION_TREND_API_BASE_URL: z.string().url().optional().or(z.literal("")),
   GENERATION_TREND_API_KEY: z.string().optional(),
   STORAGE_PROVIDER: z.enum(["supabase", "vercel_blob"]).default("supabase"),
