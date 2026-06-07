@@ -2,6 +2,7 @@ import { requireRole } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ROLES } from "@/lib/constants";
 import { AdminConsole } from "@/components/admin/AdminConsole";
+import { ApiKeysConsole } from "@/components/admin/ApiKeysConsole";
 import type { ProfileRow } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -26,10 +27,13 @@ export default async function AdminPage() {
   }
 
   return (
-    <AdminConsole
-      callerId={caller.id}
-      callerRole={caller.role}
-      initialUsers={(data ?? []) as ProfileRow[]}
-    />
+    <div className="space-y-12">
+      <AdminConsole
+        callerId={caller.id}
+        callerRole={caller.role}
+        initialUsers={(data ?? []) as ProfileRow[]}
+      />
+      <ApiKeysConsole />
+    </div>
   );
 }

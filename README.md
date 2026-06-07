@@ -23,7 +23,7 @@ Supabase(PostgreSQL + Auth)를 사용합니다.
 5. 다중 모델 토론 오케스트레이션(Cross-Examination)  (완료)
 6. 생성 모델(출력 유형 선택, 키 매핑, 범용 트렌드 API)  (완료)
 7. 순환 워크플로우(생성 후 재검증)  (완료)
-8. 웹훅 및 외부 API 키 발행
+8. 웹훅 및 외부 API 키 발행  (완료)
 9. 인스타그램 자동 업로드 백엔드(완전 구현, 동결) + 프론트 동결 표시
 10. 통합 테스트 및 무료 티어 검증
 
@@ -95,6 +95,7 @@ npm run build
 - `0003_legislation.sql`: `legislation`, `legislation_meta`(91일 카운터), `app_secrets`(암호화 비밀).
 - `0004_ai_and_analyses.sql`: `ai_provider_keys`(암호화 AI 키), `analyses`(분석 기록).
 - `0005_generation.sql`: `ai_provider_keys.category`(llm/image/video 분리), `generations`(생성 기록).
+- `0006_api_keys.sql`: `api_keys`(외부 발행 키, 해시 저장, 웹훅 URL).
 
 파일 업로드는 Supabase Storage 버킷(`SUPABASE_STORAGE_BUCKET`, 기본 `uploads`)을 사용합니다. Supabase 대시보드 또는 CLI에서 해당 버킷을 생성하십시오. 영상 등 대용량 파일은 서명된 업로드 URL로 브라우저에서 직접 업로드되어 서버리스 4.5MB 제한을 우회합니다.
 
