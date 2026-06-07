@@ -25,7 +25,7 @@ Supabase(PostgreSQL + Auth)를 사용합니다.
 7. 순환 워크플로우(생성 후 재검증)  (완료)
 8. 웹훅 및 외부 API 키 발행  (완료)
 9. 인스타그램 자동 업로드 백엔드(완전 구현, 동결) + 프론트 동결 표시  (완료)
-10. 통합 테스트 및 무료 티어 검증
+10. 통합 테스트 및 무료 티어 검증  (완료)
 
 ## 시작하기
 
@@ -105,6 +105,46 @@ npm run build
 ```bash
 npm run db:seed
 ```
+
+## 통합 테스트 (Step 10)
+
+자격증명 없이 검증 가능한 정적/통합 점검:
+
+```bash
+npm install
+npm run env:check
+npm run typecheck
+npm run lint
+npm run build
+# 개발 서버를 띄운 상태에서(예: PORT=4173 npm run dev) 전 라우트 보안 점검:
+SMOKE_BASE_URL=http://localhost:4173 npm run test:smoke
+```
+
+`test:smoke`는 공개 페이지(200), 보호 페이지의 로그인 리다이렉트(307), 모든 API의
+미인증 차단(401)을 전수 점검합니다(33개 항목). 실제 로그인/DB 조회, 법령 수집,
+모델 분석·생성·재검증, 인스타 게시는 실제 자격증명이 필요하므로 자격증명 입력 후
+검증합니다.
+
+## 무료 티어 고려사항
+
+- Supabase 무료 티어: PostgreSQL 약 500MB, Storage 약 1GB, Auth 포함. 본 앱 시작에 적합하며,
+  DB 연결 정보가 환경변수로 외부화되어 추후 본인 DB로 전환 가능합니다.
+- Vercel 무료(Hobby) 티어: 서버리스 함수 실행 시간 제한이 있습니다. 코드의 `maxDuration=300`은
+  유료 플랜에서 적용되며, Hobby에서는 기본 제한으로 인해 대량 법령 수집/다중 모델 토론/영상
+  처리 같은 장시간 작업이 타임아웃될 수 있습니다. 대용량 업로드는 Storage 직접 업로드로
+  4.5MB 페이로드 제한을 우회합니다(구현됨).
+
+## 배포 체크리스트
+
+1. Supabase 프로젝트 생성 → `.env`(또는 Vercel 환경변수)에 URL/anon/service role 키 입력.
+2. `APP_ENCRYPTION_KEY` 생성: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
+3. `supabase/migrations/0001~0007`을 순서대로 적용.
+4. Storage 버킷 `uploads` 생성.
+5. `SUPER_ADMIN_EMAIL` / `SUPER_ADMIN_PASSWORD` 설정 후 `npm run db:seed`.
+6. 소유자 법제처 API 키 입력 → 법령 사전 수집 → 키 삭제(3-4 시나리오).
+7. AI 키(Gemini 등) 입력. 필요 시 이미지/영상/트렌드 키 입력.
+8. Vercel에 동일 환경변수 설정 후 배포. 인스타 자동 업로드는 동결 상태이며,
+   자격증명 + `FEATURE_INSTAGRAM_ENABLED=true` + 메뉴 토글로 활성화합니다.
 
 ## 보안 원칙
 

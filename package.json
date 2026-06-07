@@ -9,7 +9,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "env:check": "tsx --env-file-if-exists=.env.local scripts/check-env.ts",
-    "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed-super-admin.ts"
+    "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed-super-admin.ts",
+    "test:smoke": "tsx scripts/smoke-test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
