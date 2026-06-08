@@ -2,7 +2,6 @@ import "server-only";
 import { serverEnv } from "@/lib/env";
 import { firstActiveKeyForProvider } from "@/lib/ai/keys-store";
 import { KEY_CATEGORIES } from "@/lib/constants";
-import { buildLegislationContext } from "@/lib/legislation/context";
 import { getTrendContext } from "@/lib/generation/trend";
 
 /**
@@ -19,9 +18,9 @@ export interface ImageResult {
 }
 
 async function buildImagePrompt(brief: string, note?: string): Promise<string> {
-  // Keep legislation grounding compact; image models take a visual prompt, so we
-  // summarize compliance intent rather than pasting full statute text.
-  await buildLegislationContext(20);
+  // Image models take a visual prompt, so compliance is expressed as concise
+  // guardrail text below rather than raw statute text (full legislation grounding
+  // applies to the analysis/copywriting paths and to re-verification in Step 7).
   const trend = await getTrendContext();
   return [
     brief,

@@ -140,13 +140,22 @@ export async function publishNow(input: {
 
   if (input.mediaType === "VIDEO" || input.mediaType === "REELS") {
     const maxAttempts = 30;
+    let finished = false;
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
       const status = await getContainerStatus(containerId);
-      if (status === "FINISHED") break;
+      if (status === "FINISHED") {
+        finished = true;
+        break;
+      }
       if (status === "ERROR" || status === "EXPIRED") {
         throw new Error(`미디어 컨테이너 처리 실패: ${status}`);
       }
       await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+    if (!finished) {
+      throw new Error(
+        "미디어 컨테이너 처리가 제한 시간 내에 완료되지 않았습니다(타임아웃). 게시를 중단합니다.",
+      );
     }
   }
 
