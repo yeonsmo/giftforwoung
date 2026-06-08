@@ -4,6 +4,7 @@ import { verifyApiKey, extractToken } from "@/lib/webhooks/keys";
 import { sendWebhook } from "@/lib/webhooks/sign";
 import { runAnalysis } from "@/lib/ai/analysis";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { safeFetch } from "@/lib/security/ssrf";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -33,7 +34,8 @@ export async function POST(request: NextRequest) {
 
     let media;
     if (body.mediaUrl && body.mimeType) {
-      const res = await fetch(body.mediaUrl);
+      // SSRF guard: validate scheme, block internal addresses, disable redirects.
+      const res = await safeFetch(body.mediaUrl);
       if (!res.ok) {
         throw new Error(`미디어 다운로드 실패 (HTTP ${res.status})`);
       }
@@ -53,13 +55,14 @@ export async function POST(request: NextRequest) {
 
     // Record the run, attributed to the key's creator, sourced as external.
     const admin = createAdminClient();
-    await admin.from("analyses").insert({
+    const { error: insertError } = await admin.from("analyses").insert({
       created_by: key.createdBy,
       source: "external",
       media_kind: media ? "media" : "text",
       mode: result.mode,
       result: result.verdict,
     });
+    if (insertError) throw new Error(insertError.message);
 
     // Deliver to the key's webhook if configured.
     let webhook;
