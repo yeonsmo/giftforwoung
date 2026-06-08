@@ -93,10 +93,11 @@ export async function verifyApiKey(token: string): Promise<VerifiedKey | null> {
     | null;
   if (!row || !row.is_active) return null;
 
-  await admin
+  const { error: updateError } = await admin
     .from("api_keys")
     .update({ last_used_at: new Date().toISOString() })
     .eq("id", row.id);
+  if (updateError) throw new Error(updateError.message);
 
   return { id: row.id, createdBy: row.created_by, webhookUrl: row.webhook_url };
 }
