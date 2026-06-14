@@ -3,35 +3,49 @@
  *
  * The Super Admin cannot be created through the UI; it exists only as this seed
  * (spec 2-3). Run once after Supabase credentials and SUPER_ADMIN_EMAIL /
- * SUPER_ADMIN_PASSWORD are set.
+ * SUPER_ADMIN_PASSWORD are set:
  *
- * Run: npm run db:seed
+ *   npm run db:seed
  *
- * This script depends on the role/profiles schema from
- * supabase/migrations/0001_init.sql being applied first. The profile role
- * assignment is finalized in Step 2; in Step 1 this script is authored and
- * ready but is not expected to run until credentials exist.
+ * This script is intentionally self-contained: it talks to Supabase directly and
+ * does NOT import the app's "server-only"-guarded modules, because those are
+ * built for the Next.js runtime and are not importable from a plain tsx script.
+ *
+ * Requires the role/profiles schema from supabase/migrations/0001_init.sql to be
+ * applied first (the on_auth_user_created trigger creates the profile row that
+ * this script then promotes to super_admin).
  */
 
-import { createAdminClient } from "@/lib/supabase/admin";
-import { serverEnv } from "@/lib/env";
-import { ROLES } from "@/lib/constants";
+import { createClient } from "@supabase/supabase-js";
+
+const SUPER_ADMIN_ROLE = "super_admin";
 
 async function main() {
-  const env = serverEnv();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const email = process.env.SUPER_ADMIN_EMAIL;
+  const password = process.env.SUPER_ADMIN_PASSWORD;
 
-  if (!env.SUPER_ADMIN_EMAIL || !env.SUPER_ADMIN_PASSWORD) {
+  if (!url || !serviceKey) {
+    console.error(
+      "FAIL: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set.",
+    );
+    process.exit(1);
+  }
+  if (!email || !password) {
     console.error(
       "FAIL: SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD must be set to seed the Super Admin.",
     );
     process.exit(1);
   }
 
-  const admin = createAdminClient();
+  const admin = createClient(url, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 
   const { data: created, error: createError } = await admin.auth.admin.createUser({
-    email: env.SUPER_ADMIN_EMAIL,
-    password: env.SUPER_ADMIN_PASSWORD,
+    email,
+    password,
     email_confirm: true,
   });
 
@@ -50,7 +64,7 @@ async function main() {
   // Promote the auto-created profile row to super_admin.
   const { error: roleError } = await admin
     .from("profiles")
-    .update({ role: ROLES.SUPER_ADMIN })
+    .update({ role: SUPER_ADMIN_ROLE, updated_at: new Date().toISOString() })
     .eq("id", userId);
 
   if (roleError) {
@@ -58,8 +72,12 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`PASS: Super Admin seeded (${env.SUPER_ADMIN_EMAIL}).`);
+  console.log(`PASS: Super Admin seeded (${email}).`);
   process.exit(0);
 }
 
-main();
+main().catch((e) => {
+  // Surface the raw error (spec 9-4) with a clean exit instead of a stack dump.
+  console.error(`FAIL: ${e instanceof Error ? e.message : String(e)}`);
+  process.exit(1);
+});

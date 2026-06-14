@@ -1,0 +1,36 @@
+appId: com.giftforwoung.compliance
+productName: 보험광고 법령 검증
+copyright: Copyright
+
+directories:
+  buildResources: build
+  output: dist
+
+# The Electron shell (main/preload) and the runtime window icon are packed into
+# the app; the Next.js standalone server is shipped as extra resources and run
+# by the main process.
+files:
+  - electron/**
+  - build/icon.png
+  - package.json
+
+extraResources:
+  - from: .next/standalone
+    to: app
+  - from: .next/static
+    to: app/.next/static
+  - from: public
+    to: app/public
+
+win:
+  target:
+    - nsis
+    - portable
+  icon: build/icon.ico
+  artifactName: insurance-ad-compliance-${version}-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  shortcutName: 보험광고 법령 검증

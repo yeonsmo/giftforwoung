@@ -146,6 +146,42 @@ SMOKE_BASE_URL=http://localhost:4173 npm run test:smoke
 8. Vercel에 동일 환경변수 설정 후 배포. 인스타 자동 업로드는 동결 상태이며,
    자격증명 + `FEATURE_INSTAGRAM_ENABLED=true` + 메뉴 토글로 활성화합니다.
 
+## 데스크톱 앱(.exe) — 풀 로컬 Electron
+
+Electron으로 Next.js 앱을 PC에서 직접 구동하는 데스크톱 빌드입니다(Vercel 불필요).
+더블클릭으로 실행되며 전용 아이콘이 포함됩니다. 인증/DB/스토리지는 기존 Supabase를
+그대로 사용하므로 인터넷 연결이 필요합니다.
+
+구성:
+- `electron/main.js`: Next standalone 서버(`.next/standalone/server.js`)를 로컬 포트에서
+  실행한 뒤 창으로 로드. 종료 시 서버 프로세스도 정리.
+- `electron/preload.js`: contextIsolation 적용, 렌더러에 추가 권한 미노출.
+- `electron-builder.yml`: Windows `nsis` 설치 파일 + `portable` exe, 아이콘 `build/icon.ico`.
+- `build/icon.svg` → `build/icon.png` / `build/icon.ico` (`npm run icons`로 재생성).
+
+### 빌드 (Windows 또는 Windows CI 권장)
+
+```bash
+# 1) 빌드용 공개값 입력 (.env.local). NEXT_PUBLIC_* 는 빌드 시 바이너리에 인라인됩니다.
+#    NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+npm install
+npm run dist:win   # next build + electron-builder --win → dist/ 에 .exe 생성
+```
+
+### 런타임 비밀 (서버 전용)
+
+배포된 exe 옆 또는 사용자 데이터 폴더(`%APPDATA%/보험광고 법령 검증`)에 `.env` 파일을
+두면 실행 시 로드됩니다. 예: `SUPABASE_SERVICE_ROLE_KEY`, `APP_ENCRYPTION_KEY` 등.
+법제처/AI 키는 앱 설정 메뉴에서 DB에 암호화 저장되므로 `.env`에 둘 필요가 없습니다.
+
+### 주의
+
+- `NEXT_PUBLIC_*` 값은 빌드 시 인라인됩니다. 서버 전용 비밀은 절대 `NEXT_PUBLIC_`로 두지 마십시오.
+- 로컬 실행에서는 서버 전용 비밀이 사용자 PC에 위치합니다. 단일 소유자 운영을 전제로 하며,
+  다중 사용자 공유 환경에는 웹(서버) 배포를 권장합니다.
+- Windows `.exe`는 Windows에서 빌드하는 것을 권장합니다(Linux/mac에서 win 타겟 빌드는 추가
+  도구가 필요). 아이콘 변경은 `build/icon.svg` 수정 후 `npm run icons`.
+
 ## 보안 원칙
 
 - 모든 비밀 키(법제처 API 키, AI API 키, DB 자격증명)는 서버 사이드 또는 암호화된
