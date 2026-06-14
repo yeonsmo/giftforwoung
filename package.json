@@ -2,6 +2,7 @@
   "name": "insurance-ad-compliance",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,7 +11,12 @@
     "typecheck": "tsc --noEmit",
     "env:check": "tsx --env-file-if-exists=.env.local scripts/check-env.ts",
     "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed-super-admin.ts",
-    "test:smoke": "tsx scripts/smoke-test.ts"
+    "test:smoke": "tsx scripts/smoke-test.ts",
+    "icons": "tsx scripts/generate-icons.ts",
+    "electron": "electron .",
+    "desktop:build": "next build",
+    "dist": "next build && electron-builder",
+    "dist:win": "next build && electron-builder --win"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
@@ -26,6 +32,8 @@
     "@types/node": "^20.14.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.3.0",
     "postcss": "^8.4.0",
